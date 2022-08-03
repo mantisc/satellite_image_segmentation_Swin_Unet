@@ -3,3 +3,4 @@ This project aims to train a Swin-Unet based model to complete the segmentation 
 
 
 ![image](https://github.com/mantisc/satellite_image_segmentation_Swin_Unet/blob/main/image_versus_mask.png)
+![image](https://github.com/mantisc/satellite_image_segmentation_Swin_Unet/blob/main/metric_monitor_wandb.pdf)
