@@ -333,25 +333,28 @@ def predict(image):
     image = A.Normalize(always_apply=True)(image=image)["image"]
     image = ToTensorV2(p=1)(image=image)["image"]
 
-    def model_output(patch):
-        output = model(patch.unsqueeze(0))
+    def model_output(patches):
+        output = model(patches)
         return torch.argmax(F.softmax(output, dim=1), dim=1)
 
-    patch_0 = model_output(image[:, :img_h, :img_w].to(device))
-    patch_1 = model_output(image[:, :img_h, img_w:2 * img_w].to(device))
-    patch_2 = model_output(image[:, :img_h, 2 * img_w:].to(device))
-    patch_3 = model_output(image[:, img_h:2 * img_h, :img_w].to(device))
-    patch_4 = model_output(image[:, img_h:2 * img_h, img_w:2 * img_w].to(device))
-    patch_5 = model_output(image[:, img_h:2 * img_h, 2 * img_w:].to(device))
-    patch_6 = model_output(image[:, 2 * img_h:, :img_w].to(device))
-    patch_7 = model_output(image[:, 2 * img_h:, img_w:2 * img_w].to(device))
-    patch_8 = model_output(image[:, 2 * img_h:, 2 * img_w:].to(device))
-    predicted_image = torch.cat((torch.cat((patch_0, patch_1, patch_2), dim=2),
-                                 torch.cat((patch_3, patch_4, patch_5), dim=2),
-                                 torch.cat((patch_6, patch_7, patch_8), dim=2)),
-                                dim=1).permute(1, 2, 0)
+    image = image.to(device)
+    patch_0 = image[:, :img_h, :img_w].unsqueeze(0)
+    patch_1 = image[:, :img_h, img_w:2 * img_w].unsqueeze(0)
+    patch_2 = image[:, :img_h, 2 * img_w:].unsqueeze(0)
+    patch_3 = image[:, img_h:2 * img_h, :img_w].unsqueeze(0)
+    patch_4 = image[:, img_h:2 * img_h, img_w:2 * img_w].unsqueeze(0)
+    patch_5 = image[:, img_h:2 * img_h, 2 * img_w:].unsqueeze(0)
+    patch_6 = image[:, 2 * img_h:, :img_w].unsqueeze(0)
+    patch_7 = image[:, 2 * img_h:, img_w:2 * img_w].unsqueeze(0)
+    patch_8 = image[:, 2 * img_h:, 2 * img_w:].unsqueeze(0)
+    predicted_patches = model_output(
+        torch.cat((patch_0, patch_1, patch_2, patch_3, patch_4, patch_5, patch_6, patch_7, patch_8), dim=0))
+    B, H, W = predicted_patches.shape
+    predicted_image = predicted_patches.view(3, 3, H, W)
+    predicted_image = predicted_image.permute(0, 2, 1, 3).contiguous().view(H * 3, W * 3)
     predicted_image = predicted_image.cpu().detach().numpy()
     return A.CenterCrop(height=500, width=500)(image=predicted_image)["image"]
+
 
 
 ##
