@@ -20,9 +20,9 @@ from eolearn.features import LinearInterpolationTask, SimpleFilterTask
 import cv2
 
 ##
-os.environ["AWS_ACCESS_KEY_ID"] = "AKIASZDTXP65UX7LJPLQ"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "VrT94lV4QFvFZFgA8lyWF8Y0Txi7eDXmIzc+KPBj"
-os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
+os.environ["AWS_ACCESS_KEY_ID"] = "youraccesskeyid"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "yoursecretaccesskey"
+os.environ["AWS_DEFAULT_REGION"] = "yourdefaultregion"
 
 
 def get_patch_list():
@@ -39,7 +39,7 @@ def get_patch_list():
     for o in result.get('CommonPrefixes'):
         subfolder_list.append(o.get('Prefix').replace("eopatches_slovenia_2019/", ""))
 
-    # Marginal patches have too many "No Data" labels in masks while satellite images capture valid land over, which adds unnecessary noice to training process. Remove patches with too many "No Data" labels. Default ratio set at 0.1
+    # Marginal patches have too many "No Data" labels in masks while satellite images capture valid land cover, which adds unnecessary noice to training process. Remove patches with too many "No Data" labels. Default ratio set at 0.1
     subfolder_list_clean = []
     for i in tqdm(range(len(subfolder_list))):
         eopatch = EOPatch.load(f"s3://eo-learn.sentinel-hub.com/eopatches_slovenia_2019/{subfolder_list[i]}",
@@ -73,7 +73,7 @@ def linear_task():
     valid_data_predicate = ValidDataFractionPredicate(0.8)
     filter_task = SimpleFilterTask((FeatureType.MASK, "IS_VALID"), valid_data_predicate)
 
-    # Set time intervel to 15 days so number of sampled images will be ceil(365/15) = 25
+    # Set time intervel to 15 days
     resampled_range = ("2019-01-01", "2019-12-31", 15)
     linear_interpolation = LinearInterpolationTask((FeatureType.DATA, "BANDS"),
                                                    mask_feature=(FeatureType.MASK, "IS_VALID"),
