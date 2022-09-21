@@ -29,9 +29,9 @@ def get_patch_list():
     # Connect to S3 Bucket
     client = boto3.client(
         's3',
-        aws_access_key_id="AKIASZDTXP65UX7LJPLQ",
-        aws_secret_access_key="VrT94lV4QFvFZFgA8lyWF8Y0Txi7eDXmIzc+KPBj",
-        region_name='us-east-1')
+        aws_access_key_id="youraccesskeyid",
+        aws_secret_access_key="yoursecretaccesskey",
+        region_name='yourdefaultregion')
     bucket = 'eo-learn.sentinel-hub.com'
     prefix = 'eopatches_slovenia_2019/'
     result = client.list_objects(Bucket=bucket, Prefix=prefix, Delimiter='/')
